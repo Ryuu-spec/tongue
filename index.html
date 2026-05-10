@@ -169,15 +169,15 @@
 
     const ts = [0.14, 0.30, 0.50, 0.68, 0.85];
 
-    // 등쪽: 구개 방향으로 크게 볼록한 아치
-    const dOff = [0.14, 0.26, 0.30, 0.26, 0.17];
+    // 등쪽: 구개 방향으로 크게 솟는 아치 (레퍼런스 기준 과감하게)
+    const dOff = [0.18, 0.32, 0.38, 0.35, 0.28];
     const d = ts.map((t, i) => ({
       x: tx + (bx - tx) * t,
       y: ty + (by - ty) * t - span * dOff[i],
     }));
 
-    // 배쪽: 거의 직선 (구강저), 뿌리 쪽으로 갈수록 살짝 처짐
-    const vOff = [0.02, 0.05, 0.08, 0.10, 0.09];
+    // 배쪽: 앞쪽 거의 수평, 뿌리 쪽 살짝 처짐 (구강저 반영)
+    const vOff = [0.01, 0.03, 0.05, 0.08, 0.10];
     const v = ts.map((t, i) => ({
       x: tx + (bx - tx) * t,
       y: ty + (by - ty) * t + span * vOff[i],
@@ -186,34 +186,39 @@
     return { tip:{x:tx, y:ty}, base:{x:bx, y:by}, d, v };
   }
 
-  /* ── 곡선 세그먼트 ────────────────────────────────── */
-  // pts[0]이 현재 pen 위치라고 가정하고, pts[1..n-1]까지 부드럽게 이어감
-  function curveSeg(pts) {
-    if (pts.length < 2) return '';
-    let d = '';
+  /* ── Q 세그먼트 (현재 위치에서 pts 끝까지 부드럽게) ── */
+  function qSeg(pts) {
+    let s = '';
     for (let i = 1; i < pts.length - 1; i++) {
       const mx = (pts[i].x + pts[i+1].x) / 2;
       const my = (pts[i].y + pts[i+1].y) / 2;
-      d += ` Q${pts[i].x} ${pts[i].y} ${mx} ${my}`;
+      s += ` Q${pts[i].x} ${pts[i].y} ${mx} ${my}`;
     }
-    return d + ` T${pts[pts.length-1].x} ${pts[pts.length-1].y}`;
+    return s + ` T${pts[pts.length-1].x} ${pts[pts.length-1].y}`;
   }
 
   /* ── 혀 윤곽 경로 ─────────────────────────────────── */
   function tonguePath({ tip, base, d, v }) {
-    // 등쪽: tip → d[0..4] → base
-    let path = `M${tip.x} ${tip.y}`;
-    path += curveSeg([tip, ...d, base]);
+    const n = d.length;
 
-    // 배쪽 (역방향): base → v[4..0] → tip
-    path += curveSeg([base, ...[...v].reverse(), tip]);
+    // 등쪽: tip → d[0..4]
+    let path = `M${tip.x} ${tip.y}`;
+    path += qSeg([tip, ...d]);
+
+    // 뿌리 캡: d[4] → (Q, base 너머로 불룩) → v[4]
+    const ctrlX = base.x + (base.x - d[n-1].x) * 0.55;
+    const ctrlY = (d[n-1].y + v[n-1].y) / 2;
+    path += ` Q${ctrlX} ${ctrlY} ${v[n-1].x} ${v[n-1].y}`;
+
+    // 배쪽: v[4..0] → tip
+    path += qSeg([...v].reverse());
 
     return path + ' Z';
   }
 
   /* ── 등쪽 곡선만 (글로스용) ──────────────────────── */
-  function dorsalPath({ tip, d, base }) {
-    return `M${tip.x} ${tip.y}` + curveSeg([tip, ...d, base]);
+  function dorsalPath({ tip, d }) {
+    return `M${tip.x} ${tip.y}` + qSeg([tip, ...d]);
   }
 
   /* ── 렌더 ─────────────────────────────────────────── */
