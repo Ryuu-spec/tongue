@@ -119,8 +119,6 @@
   </svg>
 
   <div id="controls">
-    <button data-l="ㄱ" aria-label="ㄱ 모양">ㄱ</button>
-    <button data-l="ㄴ" aria-label="ㄴ 모양">ㄴ</button>
     <button id="resetBtn" aria-label="초기화">reset</button>
   </div>
 </div>
@@ -159,37 +157,6 @@
       { x: cx + span*.25, y: cy },
       { x: cx + span*.50, y: cy },
     ];
-  }
-
-  function presetPts(l) {
-    const safeTop    = PAD;
-    const safeBottom = H() - PAD;
-    const safeLeft   = PAD;
-    const safeRight  = W() - PAD;
-    const cx = W() / 2;
-    const cy = (safeTop + safeBottom) / 2;
-    const w  = Math.min((safeRight - safeLeft) * 0.88, 340);
-    const h  = Math.min((safeBottom - safeTop) * 0.82, 240);
-
-    if (l === 'ㄱ') {
-      return [
-        { x: cx - w*.50, y: cy + h*.15 },
-        { x: cx - w*.20, y: cy - h*.42 },
-        { x: cx + w*.05, y: cy - h*.28 },
-        { x: cx + w*.28, y: cy + h*.08 },
-        { x: cx + w*.50, y: cy + h*.38 },
-      ];
-    }
-    if (l === 'ㄴ') {
-      return [
-        { x: cx - w*.50, y: cy + h*.18 },
-        { x: cx - w*.20, y: cy + h*.22 },
-        { x: cx + w*.05, y: cy + h*.12 },
-        { x: cx + w*.28, y: cy - h*.22 },
-        { x: cx + w*.50, y: cy - h*.42 },
-      ];
-    }
-    return defPts();
   }
 
   /* ── smooth curve ────────────────────────────────── */
@@ -317,11 +284,6 @@
   }
 
   /* ── buttons ─────────────────────────────────────── */
-  document.querySelectorAll('#controls button[data-l]').forEach(b => {
-    b.addEventListener('click', () => {
-      tweenTo(presetPts(b.dataset.l));
-    });
-  });
   document.getElementById('resetBtn').addEventListener('click', () => tweenTo(defPts()));
 
   /* ── resize ──────────────────────────────────────── */
