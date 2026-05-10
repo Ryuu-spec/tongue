@@ -37,7 +37,14 @@
 
   /* 배쪽 (ventral) — 초록 */
   .handle.vent { fill:#ccf5d4; stroke:#1a7a30; stroke-width:1.5; }
-  .handle.vent.dragging { fill:#1a7a30; }  #resetBtn {
+  .handle.vent.dragging { fill:#1a7a30; }
+
+  /* ── 리셋 버튼 ── */
+  #controls {
+    position:absolute; bottom:16px; left:50%;
+    transform:translateX(-50%); z-index:5;
+  }
+  #resetBtn {
     appearance:none; border:1px solid rgba(60,20,25,.22);
     background:rgba(255,255,255,.78); backdrop-filter:blur(10px);
     color:rgba(60,20,25,.55); font-family:inherit;
