@@ -27,7 +27,7 @@
     width: 100%; height: 100%;
     display: block;
     touch-action: none;
-    overflow: visible;
+    overflow: hidden;
   }
 
   /* handles */
@@ -46,55 +46,38 @@
   /* preset buttons */
   #controls {
     position: absolute;
-    bottom: clamp(10px, 4%, 24px);
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 10px;
+    right: 10px;
     display: flex;
-    gap: 8px;
+    gap: 6px;
     z-index: 5;
   }
   #controls button {
     appearance: none;
-    border: 1px solid rgba(60, 20, 25, 0.2);
-    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(60, 20, 25, 0.22);
+    background: rgba(255, 255, 255, 0.78);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     color: #2a1115;
     font-family: inherit;
-    font-size: clamp(14px, 4vmin, 22px);
+    font-size: clamp(13px, 3.5vmin, 18px);
     font-weight: 500;
-    width:  clamp(36px, 10vmin, 52px);
-    height: clamp(36px, 10vmin, 52px);
-    border-radius: 12px;
+    width:  clamp(30px, 8vmin, 42px);
+    height: clamp(30px, 8vmin, 42px);
+    border-radius: 10px;
     cursor: pointer;
     transition: background 0.15s, transform 0.12s;
   }
-  #controls button:hover  { background: rgba(255,255,255,0.95); transform: translateY(-1px); }
+  #controls button:hover  { background: rgba(255,255,255,0.97); transform: translateY(-1px); }
   #controls button:active { transform: translateY(0); }
   #controls #resetBtn {
     width: auto;
-    padding: 0 clamp(8px, 2vmin, 14px);
-    font-size: clamp(9px, 2.5vmin, 12px);
+    padding: 0 clamp(6px, 1.5vmin, 11px);
+    font-size: clamp(8px, 2vmin, 10px);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: rgba(60, 20, 25, 0.5);
   }
-
-  /* hint */
-  #hint {
-    position: absolute;
-    top: clamp(10px, 4%, 22px);
-    left: 50%;
-    transform: translateX(-50%);
-    color: rgba(60, 20, 25, 0.45);
-    font-size: clamp(9px, 2.5vmin, 12px);
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    pointer-events: none;
-    transition: opacity 0.6s ease;
-    white-space: nowrap;
-  }
-  #hint.gone { opacity: 0; }
 </style>
 </head>
 <body>
@@ -135,8 +118,6 @@
     <g id="gHandles"></g>
   </svg>
 
-  <div id="hint">drag the dots · 점을 움직여 혀를 구부리세요</div>
-
   <div id="controls">
     <button data-l="ㄱ" aria-label="ㄱ 모양">ㄱ</button>
     <button data-l="ㄴ" aria-label="ㄴ 모양">ㄴ</button>
@@ -151,7 +132,6 @@
   const NS      = 'http://www.w3.org/2000/svg';
   const canvas  = document.getElementById('canvas');
   const wrap    = document.getElementById('wrap');
-  const hint    = document.getElementById('hint');
   const pOuter  = document.getElementById('pOuter');
   const pBody   = document.getElementById('pBody');
   const pGloss  = document.getElementById('pGloss');
@@ -159,16 +139,19 @@
   const gSpecks = document.getElementById('gSpecks');
   const gHandles= document.getElementById('gHandles');
 
-  let pts = [], dragIdx = -1, tweenRAF = 0, interacted = false;
+  let pts = [], dragIdx = -1, tweenRAF = 0;
 
-  /* ── dimensions ─────────────────────────────────── */
+  /* ── dimensions + safe zone ──────────────────────── */
   function W() { return wrap.offsetWidth  || window.innerWidth;  }
   function H() { return wrap.offsetHeight || window.innerHeight; }
+  // PAD: stroke half-width (~35) + filter displacement (~12) + margin
+  const PAD = 48;
 
   /* ── point sets ──────────────────────────────────── */
   function defPts() {
-    const cx = W()/2, cy = H()/2;
-    const span = Math.min(W() * 0.52, 420);
+    const cx = W()/2;
+    const cy = (PAD + (H() - PAD)) / 2;          // vertically centred in safe zone
+    const span = Math.min(W() * 0.52 - PAD, 380);
     return [
       { x: cx - span*.50, y: cy },
       { x: cx - span*.25, y: cy },
@@ -179,23 +162,33 @@
   }
 
   function presetPts(l) {
-    const cx = W()/2, cy = H()/2;
-    const w = Math.min(W() * 0.44, 320);
-    const h = Math.min(H() * 0.55, 280);
-    if (l === 'ㄱ') return [
-      { x: cx - w/2,          y: cy - h/2 },
-      { x: cx - w/2 + w*.38,  y: cy - h/2 },
-      { x: cx + w/2,          y: cy - h/2 },
-      { x: cx + w/2,          y: cy - h/2 + h*.5 },
-      { x: cx + w/2,          y: cy + h/2 },
-    ];
-    if (l === 'ㄴ') return [
-      { x: cx - w/2,          y: cy - h/2 },
-      { x: cx - w/2,          y: cy - h/2 + h*.38 },
-      { x: cx - w/2,          y: cy + h/2 },
-      { x: cx - w/2 + w*.5,   y: cy + h/2 },
-      { x: cx + w/2,          y: cy + h/2 },
-    ];
+    const safeTop    = PAD;
+    const safeBottom = H() - PAD;
+    const safeLeft   = PAD;
+    const safeRight  = W() - PAD;
+    const cx = W() / 2;
+    const cy = (safeTop + safeBottom) / 2;
+    const w  = Math.min((safeRight - safeLeft) * 0.88, 340);
+    const h  = Math.min((safeBottom - safeTop) * 0.82, 240);
+
+    if (l === 'ㄱ') {
+      return [
+        { x: cx - w*.50, y: cy + h*.15 },
+        { x: cx - w*.20, y: cy - h*.42 },
+        { x: cx + w*.05, y: cy - h*.28 },
+        { x: cx + w*.28, y: cy + h*.08 },
+        { x: cx + w*.50, y: cy + h*.38 },
+      ];
+    }
+    if (l === 'ㄴ') {
+      return [
+        { x: cx - w*.50, y: cy + h*.18 },
+        { x: cx - w*.20, y: cy + h*.22 },
+        { x: cx + w*.05, y: cy + h*.12 },
+        { x: cx + w*.28, y: cy - h*.22 },
+        { x: cx + w*.50, y: cy - h*.42 },
+      ];
+    }
     return defPts();
   }
 
@@ -283,7 +276,6 @@
     dragIdx = +el.dataset.i;
     el.classList.add('drag');
     canvas.setPointerCapture(e.pointerId);
-    if (!interacted) { interacted = true; hint.classList.add('gone'); }
   });
 
   canvas.addEventListener('pointermove', e => {
@@ -327,7 +319,6 @@
   /* ── buttons ─────────────────────────────────────── */
   document.querySelectorAll('#controls button[data-l]').forEach(b => {
     b.addEventListener('click', () => {
-      if (!interacted) { interacted = true; hint.classList.add('gone'); }
       tweenTo(presetPts(b.dataset.l));
     });
   });
