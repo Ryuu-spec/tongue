@@ -5,78 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>혀 모양 — ㄱ ㄴ</title>
 <style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   html, body {
-    width: 100%; height: 100%;
-    background: transparent;
-    overflow: hidden;
-    font-family: "Apple SD Gothic Neo", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
-    user-select: none;
-    -webkit-user-select: none;
+    width:100%; height:100%;
+    background:transparent; overflow:hidden;
+    font-family:"Apple SD Gothic Neo","Noto Sans KR",ui-sans-serif,system-ui,sans-serif;
+    user-select:none; -webkit-user-select:none;
   }
-
-  #wrap {
-    position: relative;
-    width: 100%; height: 100%;
-  }
-
+  #wrap { position:relative; width:100%; height:100%; }
   svg#canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%; height: 100%;
-    display: block;
-    touch-action: none;
-    overflow: hidden;
+    position:absolute; inset:0; width:100%; height:100%;
+    display:block; touch-action:none; overflow:hidden;
   }
-
-  /* handles */
   .handle {
-    fill: #ffffff;
-    stroke: #6e1018;
-    stroke-width: 1.5;
-    cursor: grab;
-    transition: fill 0.15s ease;
+    fill:#ffffff; stroke:#6e1018; stroke-width:1.5;
+    cursor:grab; transition:fill .15s ease;
   }
-  .handle:hover  { fill: #ffe8ea; }
-  .handle.drag   { cursor: grabbing; fill: #6e1018; }
-  .handle.base   { fill: #2a1115; stroke: #2a1115; }
-  .handle.tip    { stroke: #2a1115; stroke-dasharray: 3 3; }
-
-  /* preset buttons */
+  .handle:hover  { fill:#ffe8ea; }
+  .handle.drag   { cursor:grabbing; fill:#6e1018; }
+  .handle.base   { fill:#2a1115; stroke:#2a1115; }
+  .handle.tip    { stroke:#2a1115; stroke-dasharray:3 3; }
   #controls {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    display: flex;
-    gap: 6px;
-    z-index: 5;
+    position:absolute; bottom:10px; right:10px;
+    display:flex; gap:6px; z-index:5;
   }
   #controls button {
-    appearance: none;
-    border: 1px solid rgba(60, 20, 25, 0.22);
-    background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: #2a1115;
-    font-family: inherit;
-    font-size: clamp(13px, 3.5vmin, 18px);
-    font-weight: 500;
-    width:  clamp(30px, 8vmin, 42px);
-    height: clamp(30px, 8vmin, 42px);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.12s;
+    appearance:none; border:1px solid rgba(60,20,25,.22);
+    background:rgba(255,255,255,.78); backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px); color:#2a1115;
+    font-family:inherit; font-size:clamp(13px,3.5vmin,18px); font-weight:500;
+    width:clamp(30px,8vmin,42px); height:clamp(30px,8vmin,42px);
+    border-radius:10px; cursor:pointer; transition:background .15s, transform .12s;
   }
-  #controls button:hover  { background: rgba(255,255,255,0.97); transform: translateY(-1px); }
-  #controls button:active { transform: translateY(0); }
+  #controls button:hover  { background:rgba(255,255,255,.97); transform:translateY(-1px); }
+  #controls button:active { transform:translateY(0); }
   #controls #resetBtn {
-    width: auto;
-    padding: 0 clamp(6px, 1.5vmin, 11px);
-    font-size: clamp(8px, 2vmin, 10px);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(60, 20, 25, 0.5);
+    width:auto; padding:0 clamp(6px,1.5vmin,11px);
+    font-size:clamp(8px,2vmin,10px); letter-spacing:.12em;
+    text-transform:uppercase; color:rgba(60,20,25,.5);
   }
 </style>
 </head>
@@ -85,37 +51,39 @@
   <svg id="canvas" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%"   stop-color="#ff5862"/>
-        <stop offset="55%"  stop-color="#e02333"/>
-        <stop offset="100%" stop-color="#a8121d"/>
+        <stop offset="0%"   stop-color="#ff6b72"/>
+        <stop offset="45%"  stop-color="#e02333"/>
+        <stop offset="100%" stop-color="#9a0f1a"/>
       </linearGradient>
       <linearGradient id="gGloss" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%"   stop-color="#ffe1e4" stop-opacity="0.9"/>
-        <stop offset="100%" stop-color="#ffadb4" stop-opacity="0"/>
+        <stop offset="0%"   stop-color="#ffeced" stop-opacity=".9"/>
+        <stop offset="100%" stop-color="#ffb8bc" stop-opacity="0"/>
       </linearGradient>
       <filter id="fOrganic" x="-15%" y="-15%" width="130%" height="130%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="4" result="n"/>
+        <feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="2" seed="4" result="n"/>
         <feDisplacementMap in="SourceGraphic" in2="n" scale="1.6"/>
       </filter>
     </defs>
 
     <!-- drop shadow -->
-    <path id="pShadow" fill="none" stroke="rgba(110,16,24,0.18)"
-          stroke-linecap="round" stroke-linejoin="round"
-          style="filter:blur(6px)" transform="translate(0,7)"/>
+    <path id="pShadow" style="filter:blur(9px)" transform="translate(4,11)"/>
 
-    <!-- body (organic filter) -->
+    <!-- tongue body with organic texture -->
     <g filter="url(#fOrganic)">
-      <path id="pOuter" fill="none" stroke="#6e1018"        stroke-linecap="round" stroke-linejoin="round"/>
-      <path id="pBody"  fill="none" stroke="url(#gBody)"    stroke-linecap="round" stroke-linejoin="round"/>
+      <path id="pBody"/>
     </g>
 
-    <!-- gloss -->
-    <path id="pGloss" fill="none" stroke="url(#gGloss)" stroke-opacity="0.55"
-          stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- gloss highlight on dorsal surface -->
+    <path id="pGloss" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
-    <g id="gSpecks"></g>
-    <g id="gHandles"></g>
+    <!-- texture specks -->
+    <g id="gSpecks"/>
+
+    <!-- hidden spine path (for speck sampling) -->
+    <path id="pSpine" fill="none" stroke="none" visibility="hidden"/>
+
+    <!-- control handles -->
+    <g id="gHandles"/>
   </svg>
 
   <div id="controls">
@@ -130,26 +98,23 @@
   const NS      = 'http://www.w3.org/2000/svg';
   const canvas  = document.getElementById('canvas');
   const wrap    = document.getElementById('wrap');
-  const pOuter  = document.getElementById('pOuter');
   const pBody   = document.getElementById('pBody');
   const pGloss  = document.getElementById('pGloss');
   const pShadow = document.getElementById('pShadow');
+  const pSpine  = document.getElementById('pSpine');
   const gSpecks = document.getElementById('gSpecks');
   const gHandles= document.getElementById('gHandles');
 
   let pts = [], dragIdx = -1, tweenRAF = 0;
 
-  /* ── dimensions + safe zone ──────────────────────── */
   function W() { return wrap.offsetWidth  || window.innerWidth;  }
   function H() { return wrap.offsetHeight || window.innerHeight; }
-  // PAD: stroke half-width (~35) + filter displacement (~12) + margin
   const PAD = 48;
 
-  /* ── point sets ──────────────────────────────────── */
+  /* ── default control points (horizontal center) ─── */
   function defPts() {
-    const cx = W()/2;
-    const cy = (PAD + (H() - PAD)) / 2;          // vertically centred in safe zone
-    const span = Math.min(W() * 0.52 - PAD, 380);
+    const cx = W()/2, cy = H()/2;
+    const span = Math.min(W()*.52 - PAD, 380);
     return [
       { x: cx - span*.50, y: cy },
       { x: cx - span*.25, y: cy },
@@ -159,10 +124,14 @@
     ];
   }
 
-  /* ── smooth curve ────────────────────────────────── */
-  function curve(p) {
+  /* ── base thickness relative to viewport ─────────── */
+  function bw() {
+    return Math.max(36, Math.min(90, Math.min(W(), H()) * .095));
+  }
+
+  /* ── smooth open curve through points ────────────── */
+  function openCurve(p) {
     if (!p || p.length < 2) return '';
-    if (p.length === 2) return `M${p[0].x} ${p[0].y} L${p[1].x} ${p[1].y}`;
     let d = `M${p[0].x} ${p[0].y}`;
     for (let i = 1; i < p.length - 1; i++) {
       const mx = (p[i].x + p[i+1].x) / 2;
@@ -172,31 +141,120 @@
     return d + ` T${p[p.length-1].x} ${p[p.length-1].y}`;
   }
 
-  /* ── stroke widths scale with viewport ───────────── */
-  function applyStrokes(d) {
-    const bw = Math.max(28, Math.min(62, Math.min(W(), H()) * 0.072));
-    pOuter .setAttribute('d', d); pOuter .setAttribute('stroke-width', bw + 6);
-    pBody  .setAttribute('d', d); pBody  .setAttribute('stroke-width', bw);
-    pGloss .setAttribute('d', d); pGloss .setAttribute('stroke-width', bw * 0.30);
-    pShadow.setAttribute('d', d); pShadow.setAttribute('stroke-width', bw + 4);
+  /* ── perpendicular offset points ─────────────────── */
+  // right-normal (dorsal = upward in SVG when tongue points right)
+  function computeOffsets(spine) {
+    const n = spine.length, B = bw();
+    const top = [], bot = [];
+    for (let i = 0; i < n; i++) {
+      let tx, ty;
+      if      (i === 0)   { tx = spine[1].x-spine[0].x;     ty = spine[1].y-spine[0].y; }
+      else if (i === n-1) { tx = spine[n-1].x-spine[n-2].x; ty = spine[n-1].y-spine[n-2].y; }
+      else                { tx = spine[i+1].x-spine[i-1].x; ty = spine[i+1].y-spine[i-1].y; }
+      const L  = Math.hypot(tx, ty) || 1;
+      const nx = ty / L, ny = -tx / L;     // right normal → dorsal (screen-up)
+
+      const t = i / (n - 1);
+      const w = B * (0.18 + 0.87 * t);    // 혀끝(왼쪽) 매우 얇게, 뿌리(오른쪽) 두툼하게
+
+      // 뿌리쪽으로 갈수록 dorsal:ventral 비율이 60:40 → 52:48 (점점 동그래짐)
+      const topRatio = 0.60 - 0.08 * t;
+      const botRatio = 0.40 + 0.08 * t;
+      top.push({ x: spine[i].x + nx * w * topRatio, y: spine[i].y + ny * w * topRatio });
+      bot.push({ x: spine[i].x - nx * w * botRatio, y: spine[i].y - ny * w * botRatio });
+    }
+    return { top, bot };
+  }
+
+  /* ── closed tongue outline ────────────────────────── */
+  function tonguePath(spine, top, bot) {
+    const n = spine.length;
+
+    // — dorsal edge: base → tip —
+    let d = `M${top[0].x} ${top[0].y}`;
+    for (let i = 1; i < n; i++) {
+      if (i < n - 1) {
+        const mx = (top[i].x + top[i+1].x) / 2;
+        const my = (top[i].y + top[i+1].y) / 2;
+        d += ` Q${top[i].x} ${top[i].y} ${mx} ${my}`;
+      } else {
+        d += ` T${top[n-1].x} ${top[n-1].y}`;
+      }
+    }
+
+    // — 뿌리 캡 (오른쪽, 불룩하게) —
+    const dtx = spine[n-1].x - spine[n-2].x;
+    const dty = spine[n-1].y - spine[n-2].y;
+    const dtl = Math.hypot(dtx, dty) || 1;
+    const tr  = Math.hypot(top[n-1].x - bot[n-1].x, top[n-1].y - bot[n-1].y);
+    d += ` Q${top[n-1].x + (dtx/dtl)*tr*.85} ${top[n-1].y + (dty/dtl)*tr*.85} ${bot[n-1].x} ${bot[n-1].y}`;
+
+    // — ventral edge: tip → base —
+    for (let i = n - 2; i >= 0; i--) {
+      if (i > 0) {
+        const mx = (bot[i].x + bot[i-1].x) / 2;
+        const my = (bot[i].y + bot[i-1].y) / 2;
+        d += ` Q${bot[i].x} ${bot[i].y} ${mx} ${my}`;
+      } else {
+        d += ` T${bot[0].x} ${bot[0].y}`;
+      }
+    }
+
+    // — 혀끝 캡 (왼쪽, 작고 둥글게) —
+    const dbx = spine[0].x - spine[1].x;
+    const dby = spine[0].y - spine[1].y;
+    const dbl = Math.hypot(dbx, dby) || 1;
+    const br  = Math.hypot(top[0].x - bot[0].x, top[0].y - bot[0].y);
+    d += ` Q${bot[0].x + (dbx/dbl)*br*.55} ${bot[0].y + (dby/dbl)*br*.55} ${top[0].x} ${top[0].y} Z`;
+
+    return d;
+  }
+
+  /* ── apply all paths ─────────────────────────────── */
+  function applyTongue(spine) {
+    const { top, bot } = computeOffsets(spine);
+    const tp = tonguePath(spine, top, bot);
+    const B  = bw();
+
+    // body fill
+    pBody.setAttribute('d',              tp);
+    pBody.setAttribute('fill',           'url(#gBody)');
+    pBody.setAttribute('stroke',         '#5a0912');
+    pBody.setAttribute('stroke-width',   '3');
+    pBody.setAttribute('stroke-linejoin','round');
+
+    // shadow
+    pShadow.setAttribute('d',    tp);
+    pShadow.setAttribute('fill', 'rgba(70,0,8,.42)');
+
+    // gloss along dorsal edge
+    pGloss.setAttribute('d',              openCurve(top));
+    pGloss.setAttribute('stroke',         'url(#gGloss)');
+    pGloss.setAttribute('stroke-width',   (B * .20).toFixed(1));
+    pGloss.setAttribute('stroke-opacity', '.55');
+
+    // hidden spine for speck placement
+    pSpine.setAttribute('d', openCurve(spine));
   }
 
   /* ── texture specks ──────────────────────────────── */
   function placeSpecks() {
     gSpecks.innerHTML = '';
-    const len = pBody.getTotalLength?.();
+    const len = pSpine.getTotalLength?.();
     if (!len || len < 20) return;
+    const B = bw();
     const n = Math.min(28, Math.max(5, Math.floor(len / 54)));
     for (let i = 0; i < n; i++) {
       const t = (i + .5 + (Math.random() - .5) * .4) / n;
-      const p = pBody.getPointAtLength(t * len);
-      const a = Math.random() * Math.PI * 2, r = Math.random() * 8;
+      const p = pSpine.getPointAtLength(t * len);
+      const a = Math.random() * Math.PI * 2;
+      const r = Math.random() * B * .22;
       const c = document.createElementNS(NS, 'circle');
-      c.setAttribute('cx', p.x + Math.cos(a) * r);
-      c.setAttribute('cy', p.y + Math.sin(a) * r);
-      c.setAttribute('r',  (0.8 + Math.random() * 1.4).toFixed(2));
-      c.setAttribute('fill', '#5e0a13');
-      c.setAttribute('opacity', (0.28 + Math.random() * .26).toFixed(2));
+      c.setAttribute('cx',      p.x + Math.cos(a) * r);
+      c.setAttribute('cy',      p.y + Math.sin(a) * r);
+      c.setAttribute('r',       (0.8 + Math.random() * 1.4).toFixed(2));
+      c.setAttribute('fill',    '#5e0a13');
+      c.setAttribute('opacity', (0.25 + Math.random() * .25).toFixed(2));
       gSpecks.appendChild(c);
     }
   }
@@ -206,12 +264,11 @@
     gHandles.innerHTML = '';
     pts.forEach((p, i) => {
       const c = document.createElementNS(NS, 'circle');
-      c.setAttribute('cx', p.x);
-      c.setAttribute('cy', p.y);
+      c.setAttribute('cx', p.x); c.setAttribute('cy', p.y);
       c.setAttribute('r',  i === 0 ? 8 : 7);
       let cl = 'handle';
-      if (i === 0)              cl += ' base';
-      if (i === pts.length - 1) cl += ' tip';
+      if (i === pts.length - 1) cl += ' base';   // 오른쪽 = 혀뿌리
+      if (i === 0)              cl += ' tip';     // 왼쪽 = 혀끝
       c.setAttribute('class', cl);
       c.dataset.i = i;
       gHandles.appendChild(c);
@@ -225,9 +282,9 @@
     });
   }
 
-  function redraw() { applyStrokes(curve(pts)); placeSpecks(); }
+  function redraw() { applyTongue(pts); placeSpecks(); }
 
-  /* ── SVG coordinate conversion ───────────────────── */
+  /* ── SVG coordinates ─────────────────────────────── */
   function svgPt(e) {
     const pt = canvas.createSVGPoint();
     pt.x = e.clientX; pt.y = e.clientY;
@@ -237,11 +294,10 @@
 
   /* ── drag ────────────────────────────────────────── */
   canvas.addEventListener('pointerdown', e => {
-    const el = e.target;
-    if (el.dataset.i === undefined) return;
+    if (e.target.dataset.i === undefined) return;
     e.preventDefault();
-    dragIdx = +el.dataset.i;
-    el.classList.add('drag');
+    dragIdx = +e.target.dataset.i;
+    e.target.classList.add('drag');
     canvas.setPointerCapture(e.pointerId);
   });
 
@@ -250,54 +306,43 @@
     const sp = svgPt(e);
     pts[dragIdx] = { x: sp.x, y: sp.y };
     syncHandles();
-    applyStrokes(curve(pts));
+    applyTongue(pts);
   });
 
   function endDrag() {
     if (dragIdx < 0) return;
-    const el = gHandles.children[dragIdx];
-    if (el) el.classList.remove('drag');
+    gHandles.children[dragIdx]?.classList.remove('drag');
     dragIdx = -1;
     placeSpecks();
   }
-  canvas.addEventListener('pointerup',    endDrag);
+  canvas.addEventListener('pointerup',     endDrag);
   canvas.addEventListener('pointercancel', endDrag);
 
   /* ── tween ───────────────────────────────────────── */
   function tweenTo(target, dur = 640) {
     cancelAnimationFrame(tweenRAF);
     const from = pts.map(p => ({ ...p }));
-    const t0 = performance.now();
-    const ease = t => t < .5 ? 4*t*t*t : 1 - (-2*t+2)**3/2;
+    const t0   = performance.now();
+    const ease = t => t < .5 ? 4*t**3 : 1-(-2*t+2)**3/2;
     (function step(now) {
-      const k = Math.min(1, (now - t0) / dur);
-      const e = ease(k);
+      const k = Math.min(1, (now - t0) / dur), e = ease(k);
       pts.forEach((p, i) => {
         p.x = from[i].x + (target[i].x - from[i].x) * e;
         p.y = from[i].y + (target[i].y - from[i].y) * e;
       });
-      syncHandles();
-      applyStrokes(curve(pts));
+      syncHandles(); applyTongue(pts);
       if (k < 1) tweenRAF = requestAnimationFrame(step);
       else placeSpecks();
     })(t0);
   }
 
-  /* ── buttons ─────────────────────────────────────── */
   document.getElementById('resetBtn').addEventListener('click', () => tweenTo(defPts()));
 
-  /* ── resize ──────────────────────────────────────── */
-  const ro = new ResizeObserver(() => applyStrokes(curve(pts)));
+  const ro = new ResizeObserver(() => applyTongue(pts));
   ro.observe(wrap);
+  window.addEventListener('resize', () => applyTongue(pts));
 
-  window.addEventListener('resize', () => applyStrokes(curve(pts)));
-
-  /* ── init ────────────────────────────────────────── */
-  requestAnimationFrame(() => {
-    pts = defPts();
-    buildHandles();
-    redraw();
-  });
+  requestAnimationFrame(() => { pts = defPts(); buildHandles(); redraw(); });
 })();
 </script>
 </body>
