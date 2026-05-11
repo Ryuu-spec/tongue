@@ -93,24 +93,18 @@
 
   <!-- 자음 버튼 바 -->
   <div id="btnBar">
-    <!-- 양순 -->
-    <button class="cBtn" data-key="ㅁ">ㅁ</button>
-    <button class="cBtn" data-key="ㅂ">ㅂ</button>
-    <div class="sep"></div>
-    <!-- 치조 -->
-    <button class="cBtn" data-key="ㄴ">ㄴ</button>
-    <button class="cBtn" data-key="ㄷ">ㄷ</button>
-    <button class="cBtn" data-key="ㄹ">ㄹ</button>
-    <button class="cBtn" data-key="ㅅ">ㅅ</button>
-    <div class="sep"></div>
-    <!-- 경구개치조 -->
-    <button class="cBtn" data-key="ㅈ">ㅈ</button>
-    <div class="sep"></div>
-    <!-- 연구개 -->
     <button class="cBtn" data-key="ㄱ">ㄱ</button>
     <div class="sep"></div>
-    <!-- 성문 -->
-    <button class="cBtn" data-key="ㅎ">ㅎ</button>
+    <button class="cBtn" data-key="ㄴ">ㄴ</button>
+    <div class="sep"></div>
+    <button class="cBtn" data-key="ㅁ">ㅁ</button>
+    <div class="sep"></div>
+    <button class="cBtn" data-key="ㅇ초">ㅇ<sub style="font-size:.6em;line-height:1;vertical-align:-.1em">초</sub></button>
+    <button class="cBtn" data-key="ㅇ종">ㅇ<sub style="font-size:.6em;line-height:1;vertical-align:-.1em">종</sub></button>
+    <div class="sep"></div>
+    <button class="cBtn" data-key="ㅅ">ㅅ</button>
+    <div class="sep"></div>
+    <button class="cBtn" data-key="ㅈ">ㅈ</button>
   </div>
 </div>
 
@@ -159,51 +153,61 @@
     }
 
     return {
-      // 중립 (기본)
+      // 중립
       neutral: make( span*.10,
         [0.18, 0.32, 0.38, 0.35, 0.28],
         [0.01, 0.03, 0.05, 0.08, 0.10]),
 
-      // 양순음 — 혀 중립, 입술이 주역
-      ㅁ: make( span*.10,
-        [0.14, 0.22, 0.26, 0.24, 0.20],
-        [0.01, 0.03, 0.05, 0.07, 0.09]),
-      ㅂ: make( span*.10,
-        [0.14, 0.22, 0.26, 0.24, 0.20],
-        [0.01, 0.03, 0.05, 0.07, 0.09]),
+      // ㄱ — 연구개음: 앞 수평 → 뒤에서 수직 상승 → ㄱ자 실루엣
+      // make() 대신 직접 구성: base를 아래로 내려 오른쪽 벽이 수직으로 떨어지게
+      'ㄱ': (() => {
+        const tipY  = ty0 + span*.18;          // 혀끝 낮게
+        const baseY = ty0 + span*.28;          // 뿌리 아래로 (수직 벽)
+        const dOff  = [0.02, 0.02, 0.04, 0.54, 0.56]; // 앞 평평, 뒤만 솟음
+        const vOff  = [0.03, 0.04, 0.06, 0.07, 0.06];
+        return {
+          tip : { x:tx,  y:tipY },
+          base: { x:bx,  y:baseY },
+          d: ts.map((t,i) => ({
+            x: tx + (bx-tx)*t,
+            y: ty0 + (baseY-ty0)*t - span*dOff[i]
+          })),
+          v: ts.map((t,i) => ({
+            x: tx + (bx-tx)*t,
+            y: ty0 + (baseY-ty0)*t + span*vOff[i]
+          })),
+        };
+      })(),
 
-      // 치조음 — 혀끝이 치조에 접촉
-      ㄴ: make(-span*.15,
-        [0.44, 0.28, 0.18, 0.16, 0.14],
-        [0.00, 0.03, 0.05, 0.07, 0.09]),
-      ㄷ: make(-span*.15,
-        [0.44, 0.28, 0.18, 0.16, 0.14],
-        [0.00, 0.03, 0.05, 0.07, 0.09]),
+      // ㄴ — 치조음: 혀끝이 치조에 닿음, 몸통은 비교적 낮게
+      'ㄴ': make(-span*.28,
+        [0.52, 0.26, 0.16, 0.14, 0.13],
+        [0.00, 0.02, 0.04, 0.06, 0.08]),
 
-      // 탄설음 — 혀끝 빠르게 치조 스침
-      ㄹ: make(-span*.09,
-        [0.36, 0.24, 0.18, 0.16, 0.14],
-        [0.01, 0.03, 0.05, 0.07, 0.09]),
+      // ㅁ — 양순음: 혀 중립, 낮고 평평 (입술이 주역)
+      'ㅁ': make( span*.12,
+        [0.10, 0.16, 0.18, 0.17, 0.15],
+        [0.02, 0.04, 0.06, 0.07, 0.08]),
 
-      // 치조 마찰음 — 혀끝 근접 (닿지 않음)
-      ㅅ: make(-span*.05,
-        [0.28, 0.24, 0.18, 0.16, 0.14],
-        [0.01, 0.03, 0.05, 0.07, 0.09]),
+      // ㅇ초 — 초성 ㅇ(무음): 혀 낮고 평평, 목구멍 형태 (중립보다 더 낮음)
+      'ㅇ초': make( span*.16,
+        [0.08, 0.12, 0.14, 0.13, 0.12],
+        [0.03, 0.05, 0.07, 0.08, 0.09]),
 
-      // 경구개치조음 — 혀 앞-중간이 경구개에 접근
-      ㅈ: make( span*.04,
-        [0.24, 0.40, 0.38, 0.22, 0.16],
-        [0.01, 0.03, 0.05, 0.07, 0.09]),
+      // ㅇ종 — 종성 ㅇ(연구개 비음): ㄱ과 비슷하나 더 넓게 접촉
+      'ㅇ종': make( span*.13,
+        [0.06, 0.12, 0.26, 0.48, 0.50],
+        [0.02, 0.04, 0.06, 0.06, 0.07]),
 
-      // 연구개음 — 혀 뒤가 연구개에 접촉
-      ㄱ: make( span*.16,
-        [0.04, 0.08, 0.22, 0.50, 0.52],
-        [0.02, 0.04, 0.07, 0.08, 0.08]),
+      // ㅅ — 치조 마찰음: 혀끝이 치조에 근접하되 닿지 않음 (ㄴ보다 덜 올라감)
+      'ㅅ': make(-span*.14,
+        [0.38, 0.24, 0.16, 0.14, 0.13],
+        [0.00, 0.02, 0.04, 0.06, 0.08]),
 
-      // 성문음 — 혀 낮고 평평 (후두에서 조음)
-      ㅎ: make( span*.14,
-        [0.08, 0.13, 0.15, 0.13, 0.11],
-        [0.02, 0.04, 0.06, 0.08, 0.10]),
+      // ㅈ — 경구개치조음: 혀 앞-중간(d[1],d[2])이 경구개 방향으로 올라감
+      'ㅈ': make( span*.06,
+        [0.22, 0.42, 0.40, 0.22, 0.15],
+        [0.01, 0.02, 0.04, 0.06, 0.08]),
     };
   }
 
