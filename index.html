@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>혀 모양</title>
+<title>혀 모양 — 자음 프리셋</title>
 <style>
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   html, body {
@@ -12,49 +12,57 @@
     user-select:none; -webkit-user-select:none;
   }
   #wrap { position:relative; width:100%; height:100%; }
+
   svg#canvas {
-    position:absolute; inset:0; width:100%; height:100%;
+    position:absolute; inset:0; width:100%; height:calc(100% - 68px);
     display:block; touch-action:none; overflow:hidden;
   }
 
-  /* ── 공통 핸들 ── */
-  .handle {
-    cursor:grab; transition:r .12s, opacity .15s;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,.22));
-  }
-  .handle:hover   { opacity:.85; }
+  /* ── 핸들 ── */
+  .handle { cursor:grab; transition:opacity .15s;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.2)); }
+  .handle:hover    { opacity:.8; }
   .handle.dragging { cursor:grabbing; }
-
-  /* 혀끝 (tip) — 점선 */
-  .handle.tip  { fill:#fff; stroke:#333; stroke-width:1.5; stroke-dasharray:3 2.5; }
-
-  /* 뿌리 (base) — 검정 */
+  .handle.tip  { fill:#fff; stroke:#444; stroke-width:1.5; stroke-dasharray:3 2.5; }
   .handle.base { fill:#1e1e1e; stroke:#1e1e1e; stroke-width:1.5; }
-
-  /* 등쪽 (dorsal) — 파랑 */
   .handle.dors { fill:#cce4ff; stroke:#1a5fa8; stroke-width:1.5; }
-  .handle.dors.dragging { fill:#1a5fa8; }
-
-  /* 배쪽 (ventral) — 초록 */
   .handle.vent { fill:#ccf5d4; stroke:#1a7a30; stroke-width:1.5; }
+  .handle.dors.dragging { fill:#1a5fa8; }
   .handle.vent.dragging { fill:#1a7a30; }
 
-  /* ── 리셋 버튼 ── */
-  #controls {
-    position:absolute; bottom:16px; left:50%;
-    transform:translateX(-50%); z-index:5;
+  /* ── 자음 버튼 바 ── */
+  #btnBar {
+    position:absolute; bottom:0; left:0; right:0;
+    height:68px;
+    display:flex; align-items:center; justify-content:center;
+    gap:6px; padding:0 10px;
+    background:rgba(255,255,255,.72); backdrop-filter:blur(12px);
+    border-top:1px solid rgba(0,0,0,.06);
   }
-  #resetBtn {
-    appearance:none; border:1px solid rgba(60,20,25,.22);
-    background:rgba(255,255,255,.78); backdrop-filter:blur(10px);
-    color:rgba(60,20,25,.55); font-family:inherit;
-    font-size:clamp(8px,2vmin,10px); letter-spacing:.12em;
-    text-transform:uppercase; padding:0 clamp(7px,1.8vmin,12px);
-    height:clamp(26px,7vmin,36px); border-radius:9px;
-    cursor:pointer; transition:background .15s, transform .12s;
+  .cBtn {
+    appearance:none;
+    width:clamp(34px,8vmin,44px); height:clamp(34px,8vmin,44px);
+    border-radius:10px;
+    border:1.5px solid rgba(110,16,24,.18);
+    background:rgba(255,255,255,.85);
+    font-family:inherit; font-size:clamp(15px,4vmin,20px);
+    color:#2a1115; cursor:pointer;
+    transition:background .14s, transform .1s, border-color .14s;
+    display:flex; align-items:center; justify-content:center;
   }
-  #resetBtn:hover  { background:rgba(255,255,255,.97); transform:translateY(-1px); }
-  #resetBtn:active { transform:translateY(0); }
+  .cBtn:hover  { background:#fff; transform:translateY(-2px); }
+  .cBtn:active { transform:translateY(0); }
+  .cBtn.active {
+    background:#e02333; color:#fff;
+    border-color:#e02333;
+    box-shadow:0 3px 10px rgba(220,30,40,.35);
+  }
+
+  /* 조음 위치별 색 구분선 */
+  .sep {
+    width:1px; height:28px;
+    background:rgba(0,0,0,.10); flex-shrink:0;
+  }
 </style>
 </head>
 <body>
@@ -75,35 +83,34 @@
         <feDisplacementMap in="SourceGraphic" in2="n" scale="1.4"/>
       </filter>
     </defs>
-
-    <!-- 그림자 -->
     <path id="pShadow" style="filter:blur(10px)" transform="translate(4,12)"/>
-
-    <!-- 혀 본체 (organic filter) -->
-    <g filter="url(#fOrg)">
-      <path id="pBody"/>
-    </g>
-
-    <!-- 등쪽 글로스 하이라이트 -->
+    <g filter="url(#fOrg)"><path id="pBody"/></g>
     <path id="pGloss" fill="none" stroke-linecap="round"/>
-
-    <!-- 질감 점들 -->
     <g id="gSpecks"/>
-
-    <!-- 히든 등쪽 곡선 (점 분산용) -->
     <path id="pSpine" fill="none" stroke="none" visibility="hidden"/>
-
-    <!-- 핸들 -->
     <g id="gHandles"/>
   </svg>
-<span>등쪽 (dorsal)</span></div>
-    <div class="leg"><div class="dot vent"></div><span>배쪽 (ventral)</span></div>
-    <div class="leg"><div class="dot tip"></div><span>혀끝</span></div>
-    <div class="leg"><div class="dot base"></div><span>혀뿌리</span></div>
-  </div>
 
-  <div id="controls">
-    <button id="resetBtn">reset</button>
+  <!-- 자음 버튼 바 -->
+  <div id="btnBar">
+    <!-- 양순 -->
+    <button class="cBtn" data-key="ㅁ">ㅁ</button>
+    <button class="cBtn" data-key="ㅂ">ㅂ</button>
+    <div class="sep"></div>
+    <!-- 치조 -->
+    <button class="cBtn" data-key="ㄴ">ㄴ</button>
+    <button class="cBtn" data-key="ㄷ">ㄷ</button>
+    <button class="cBtn" data-key="ㄹ">ㄹ</button>
+    <button class="cBtn" data-key="ㅅ">ㅅ</button>
+    <div class="sep"></div>
+    <!-- 경구개치조 -->
+    <button class="cBtn" data-key="ㅈ">ㅈ</button>
+    <div class="sep"></div>
+    <!-- 연구개 -->
+    <button class="cBtn" data-key="ㄱ">ㄱ</button>
+    <div class="sep"></div>
+    <!-- 성문 -->
+    <button class="cBtn" data-key="ㅎ">ㅎ</button>
   </div>
 </div>
 
@@ -121,50 +128,86 @@
   const gSpecks = document.getElementById('gSpecks');
   const gHandles= document.getElementById('gHandles');
 
-  const PAD = 48;
+  const PAD = 40;
   function W() { return wrap.offsetWidth  || window.innerWidth;  }
-  function H() { return wrap.offsetHeight || window.innerHeight; }
+  function H() { return (wrap.offsetHeight || window.innerHeight) - 68; } // 버튼 바 제외
 
-  /* ── 상태 ─────────────────────────────────────────── */
-  // tip: 혀끝 (왼쪽), base: 혀뿌리 (오른쪽)
-  // d[0..4]: 등쪽 5개 제어점
-  // v[0..4]: 배쪽 5개 제어점
   let S = { tip:{x:0,y:0}, base:{x:0,y:0}, d:[], v:[] };
-  let drag = null;  // { type:'tip'|'base'|'d'|'v', i:number }
-  let tweenRAF = 0;
+  let drag = null, tweenRAF = 0;
 
-  /* ── 기본 위치 계산 ───────────────────────────────── */
-  function makeDefault() {
+  /* ── 프리셋 계산 ──────────────────────────────────── */
+  function getPresets() {
     const cx = W()/2, cy = H()/2;
-    const span = Math.min(W()*.52 - PAD, 380);
-
-    // 혀끝: 왼쪽 + 살짝 아래 (구강 단면 기준 입술 쪽)
-    const tx = cx - span * .48;
-    const ty = cy + span * .10;
-    // 혀뿌리: 오른쪽 + 약간 위 (인두 방향, 실제 혀 기울기 반영)
-    const bx = cx + span * .48;
-    const by = cy - span * .03;
-
+    const span = Math.min(W()*.52 - PAD, 360);
+    const tx = cx - span*.46, ty0 = cy;
+    const bx = cx + span*.46, by  = cy - span*.03;
     const ts = [0.14, 0.30, 0.50, 0.68, 0.85];
 
-    // 등쪽: 구개 방향으로 크게 솟는 아치 (레퍼런스 기준 과감하게)
-    const dOff = [0.18, 0.32, 0.38, 0.35, 0.28];
-    const d = ts.map((t, i) => ({
-      x: tx + (bx - tx) * t,
-      y: ty + (by - ty) * t - span * dOff[i],
-    }));
+    function make(tipDy, dOff, vOff) {
+      return {
+        tip : { x:tx, y:ty0 + tipDy },
+        base: { x:bx, y:by },
+        d: ts.map((t,i) => ({
+          x: tx + (bx-tx)*t,
+          y: ty0 + (by-ty0)*t - span*dOff[i]
+        })),
+        v: ts.map((t,i) => ({
+          x: tx + (bx-tx)*t,
+          y: ty0 + (by-ty0)*t + span*vOff[i]
+        })),
+      };
+    }
 
-    // 배쪽: 앞쪽 거의 수평, 뿌리 쪽 살짝 처짐 (구강저 반영)
-    const vOff = [0.01, 0.03, 0.05, 0.08, 0.10];
-    const v = ts.map((t, i) => ({
-      x: tx + (bx - tx) * t,
-      y: ty + (by - ty) * t + span * vOff[i],
-    }));
+    return {
+      // 중립 (기본)
+      neutral: make( span*.10,
+        [0.18, 0.32, 0.38, 0.35, 0.28],
+        [0.01, 0.03, 0.05, 0.08, 0.10]),
 
-    return { tip:{x:tx, y:ty}, base:{x:bx, y:by}, d, v };
+      // 양순음 — 혀 중립, 입술이 주역
+      ㅁ: make( span*.10,
+        [0.14, 0.22, 0.26, 0.24, 0.20],
+        [0.01, 0.03, 0.05, 0.07, 0.09]),
+      ㅂ: make( span*.10,
+        [0.14, 0.22, 0.26, 0.24, 0.20],
+        [0.01, 0.03, 0.05, 0.07, 0.09]),
+
+      // 치조음 — 혀끝이 치조에 접촉
+      ㄴ: make(-span*.15,
+        [0.44, 0.28, 0.18, 0.16, 0.14],
+        [0.00, 0.03, 0.05, 0.07, 0.09]),
+      ㄷ: make(-span*.15,
+        [0.44, 0.28, 0.18, 0.16, 0.14],
+        [0.00, 0.03, 0.05, 0.07, 0.09]),
+
+      // 탄설음 — 혀끝 빠르게 치조 스침
+      ㄹ: make(-span*.09,
+        [0.36, 0.24, 0.18, 0.16, 0.14],
+        [0.01, 0.03, 0.05, 0.07, 0.09]),
+
+      // 치조 마찰음 — 혀끝 근접 (닿지 않음)
+      ㅅ: make(-span*.05,
+        [0.28, 0.24, 0.18, 0.16, 0.14],
+        [0.01, 0.03, 0.05, 0.07, 0.09]),
+
+      // 경구개치조음 — 혀 앞-중간이 경구개에 접근
+      ㅈ: make( span*.04,
+        [0.24, 0.40, 0.38, 0.22, 0.16],
+        [0.01, 0.03, 0.05, 0.07, 0.09]),
+
+      // 연구개음 — 혀 뒤가 연구개에 접촉
+      ㄱ: make( span*.16,
+        [0.04, 0.08, 0.22, 0.50, 0.52],
+        [0.02, 0.04, 0.07, 0.08, 0.08]),
+
+      // 성문음 — 혀 낮고 평평 (후두에서 조음)
+      ㅎ: make( span*.14,
+        [0.08, 0.13, 0.15, 0.13, 0.11],
+        [0.02, 0.04, 0.06, 0.08, 0.10]),
+    };
   }
 
-  /* ── Q 세그먼트 (현재 위치에서 pts 끝까지 부드럽게) ── */
+  /* ── 곡선 헬퍼 ────────────────────────────────────── */
   function qSeg(pts) {
     let s = '';
     for (let i = 1; i < pts.length - 1; i++) {
@@ -175,34 +218,27 @@
     return s + ` T${pts[pts.length-1].x} ${pts[pts.length-1].y}`;
   }
 
-  /* ── 혀 윤곽 경로 ─────────────────────────────────── */
+  /* ── 혀 윤곽 ──────────────────────────────────────── */
   function tonguePath({ tip, base, d, v }) {
     const n = d.length;
-
-    // 등쪽: tip → d[0..4]
-    let path = `M${tip.x} ${tip.y}`;
-    path += qSeg([tip, ...d]);
-
-    // 뿌리 캡: d[4] → (Q, base 너머로 불룩) → v[4]
-    const ctrlX = base.x + (base.x - d[n-1].x) * 0.55;
-    const ctrlY = (d[n-1].y + v[n-1].y) / 2;
-    path += ` Q${ctrlX} ${ctrlY} ${v[n-1].x} ${v[n-1].y}`;
-
-    // 배쪽: v[4..0] → tip
-    path += qSeg([...v].reverse());
-
-    return path + ' Z';
+    let p = `M${tip.x} ${tip.y}`;
+    p += qSeg([tip, ...d]);
+    // 뿌리 캡: base 너머로 불룩한 Q
+    const cx = base.x + (base.x - d[n-1].x) * .55;
+    const cy = (d[n-1].y + v[n-1].y) / 2;
+    p += ` Q${cx} ${cy} ${v[n-1].x} ${v[n-1].y}`;
+    p += qSeg([...v].reverse());
+    return p + ' Z';
   }
 
-  /* ── 등쪽 곡선만 (글로스용) ──────────────────────── */
   function dorsalPath({ tip, d }) {
     return `M${tip.x} ${tip.y}` + qSeg([tip, ...d]);
   }
 
   /* ── 렌더 ─────────────────────────────────────────── */
   function render(s) {
-    const tp = tonguePath(s);
-    const dp = dorsalPath(s);
+    const tp = tonguePath(s), dp = dorsalPath(s);
+    const gw = Math.max(8, Math.min(20, Math.min(W(),H())*.026));
 
     pBody.setAttribute('d',               tp);
     pBody.setAttribute('fill',            'url(#gBody)');
@@ -211,9 +247,8 @@
     pBody.setAttribute('stroke-linejoin', 'round');
 
     pShadow.setAttribute('d',    tp);
-    pShadow.setAttribute('fill', 'rgba(60,0,6,.38)');
+    pShadow.setAttribute('fill', 'rgba(60,0,6,.36)');
 
-    const gw = Math.max(10, Math.min(22, Math.min(W(),H()) * .028));
     pGloss.setAttribute('d',              dp);
     pGloss.setAttribute('stroke',         'url(#gGloss)');
     pGloss.setAttribute('stroke-width',   gw);
@@ -227,148 +262,139 @@
     gSpecks.innerHTML = '';
     const len = pSpine.getTotalLength?.();
     if (!len || len < 10) return;
-    const n = Math.min(28, Math.max(5, Math.floor(len / 50)));
+    const n = Math.min(24, Math.max(5, Math.floor(len/50)));
     for (let i = 0; i < n; i++) {
-      const t = (i + .5 + (Math.random()-.5)*.4) / n;
-      const p = pSpine.getPointAtLength(t * len);
-      const a = Math.random() * Math.PI * 2;
-      const r = Math.random() * 12;
-      const c = document.createElementNS(NS, 'circle');
-      c.setAttribute('cx',      p.x + Math.cos(a)*r);
-      c.setAttribute('cy',      p.y + Math.sin(a)*r);
-      c.setAttribute('r',       (0.8 + Math.random()*1.4).toFixed(2));
+      const t = (i+.5+(Math.random()-.5)*.4)/n;
+      const p = pSpine.getPointAtLength(t*len);
+      const a = Math.random()*Math.PI*2, r = Math.random()*10;
+      const c = document.createElementNS(NS,'circle');
+      c.setAttribute('cx', p.x+Math.cos(a)*r);
+      c.setAttribute('cy', p.y+Math.sin(a)*r);
+      c.setAttribute('r',  (0.8+Math.random()*1.3).toFixed(2));
       c.setAttribute('fill',    '#5a0a12');
-      c.setAttribute('opacity', (0.22 + Math.random()*.24).toFixed(2));
+      c.setAttribute('opacity', (0.2+Math.random()*.22).toFixed(2));
       gSpecks.appendChild(c);
     }
   }
 
-  /* ── 핸들 빌드 ────────────────────────────────────── */
+  /* ── 핸들 ─────────────────────────────────────────── */
   function buildHandles(s) {
     gHandles.innerHTML = '';
-
     const add = (p, cls, type, i) => {
-      const c = document.createElementNS(NS, 'circle');
+      const c = document.createElementNS(NS,'circle');
       c.setAttribute('cx', p.x); c.setAttribute('cy', p.y);
-      c.setAttribute('r',  cls === 'base' ? 8 : cls === 'tip' ? 7 : 6);
-      c.setAttribute('class', `handle ${cls}`);
+      c.setAttribute('r',  cls==='base'?8:cls==='tip'?7:6);
+      c.setAttribute('class',`handle ${cls}`);
       c.dataset.type = type;
       if (i !== undefined) c.dataset.i = i;
       gHandles.appendChild(c);
     };
-
-    // 등쪽 (파랑)
-    s.d.forEach((p, i) => add(p, 'dors', 'd', i));
-    // 배쪽 (초록)
-    s.v.forEach((p, i) => add(p, 'vent', 'v', i));
-    // 혀끝, 뿌리
+    s.d.forEach((p,i) => add(p,'dors','d',i));
+    s.v.forEach((p,i) => add(p,'vent','v',i));
     add(s.tip,  'tip',  'tip');
     add(s.base, 'base', 'base');
   }
 
   function syncHandles(s) {
     [...gHandles.children].forEach(c => {
-      const type = c.dataset.type, i = +c.dataset.i;
-      const p = type === 'tip'  ? s.tip
-              : type === 'base' ? s.base
-              : type === 'd'    ? s.d[i]
-              :                   s.v[i];
-      c.setAttribute('cx', p.x); c.setAttribute('cy', p.y);
+      const type=c.dataset.type, i=+c.dataset.i;
+      const p = type==='tip'?s.tip:type==='base'?s.base
+              : type==='d'?s.d[i]:s.v[i];
+      c.setAttribute('cx',p.x); c.setAttribute('cy',p.y);
     });
   }
 
-  function redraw() { render(S); placeSpecks(); }
-
-  /* ── SVG 좌표 변환 ────────────────────────────────── */
+  /* ── 드래그 ───────────────────────────────────────── */
   function svgPt(e) {
-    const pt = canvas.createSVGPoint();
-    pt.x = e.clientX; pt.y = e.clientY;
-    const ctm = canvas.getScreenCTM();
-    return ctm ? pt.matrixTransform(ctm.inverse()) : pt;
+    const pt=canvas.createSVGPoint();
+    pt.x=e.clientX; pt.y=e.clientY;
+    const ctm=canvas.getScreenCTM();
+    return ctm?pt.matrixTransform(ctm.inverse()):pt;
   }
 
-  /* ── 드래그 ───────────────────────────────────────── */
   canvas.addEventListener('pointerdown', e => {
-    const el = e.target;
-    if (!el.dataset.type) return;
+    if (!e.target.dataset.type) return;
     e.preventDefault();
-    drag = { type: el.dataset.type, i: +el.dataset.i };
-    el.classList.add('dragging');
+    drag = { type:e.target.dataset.type, i:+e.target.dataset.i };
+    e.target.classList.add('dragging');
     canvas.setPointerCapture(e.pointerId);
+    setActive(null); // 드래그 시작하면 버튼 선택 해제
   });
 
   canvas.addEventListener('pointermove', e => {
     if (!drag) return;
-    const sp = svgPt(e);
-    if      (drag.type === 'tip')  S.tip    = { x:sp.x, y:sp.y };
-    else if (drag.type === 'base') S.base   = { x:sp.x, y:sp.y };
-    else if (drag.type === 'd')    S.d[drag.i] = { x:sp.x, y:sp.y };
-    else                           S.v[drag.i] = { x:sp.x, y:sp.y };
-    syncHandles(S);
-    render(S);
+    const sp=svgPt(e);
+    if      (drag.type==='tip')  S.tip=      {x:sp.x,y:sp.y};
+    else if (drag.type==='base') S.base=     {x:sp.x,y:sp.y};
+    else if (drag.type==='d')    S.d[drag.i]={x:sp.x,y:sp.y};
+    else                         S.v[drag.i]={x:sp.x,y:sp.y};
+    syncHandles(S); render(S);
   });
 
-  function endDrag(e) {
+  function endDrag() {
     if (!drag) return;
-    // 해당 핸들 class 복원
-    [...gHandles.children].forEach(c => {
-      if (c.dataset.type === drag.type &&
-          (drag.type === 'tip' || drag.type === 'base' || +c.dataset.i === drag.i))
+    [...gHandles.children].forEach(c=>{
+      if (c.dataset.type===drag.type && +c.dataset.i===drag.i)
         c.classList.remove('dragging');
     });
-    drag = null;
-    placeSpecks();
+    drag=null; placeSpecks();
   }
   canvas.addEventListener('pointerup',     endDrag);
   canvas.addEventListener('pointercancel', endDrag);
 
   /* ── 트윈 ─────────────────────────────────────────── */
   function cloneS(s) {
-    return {
-      tip:  { ...s.tip },
-      base: { ...s.base },
-      d:    s.d.map(p => ({ ...p })),
-      v:    s.v.map(p => ({ ...p })),
-    };
+    return { tip:{...s.tip}, base:{...s.base},
+             d:s.d.map(p=>({...p})), v:s.v.map(p=>({...p})) };
   }
 
-  function tweenTo(target, dur = 640) {
+  function tweenTo(target, dur=600) {
     cancelAnimationFrame(tweenRAF);
-    const from = cloneS(S);
-    const t0   = performance.now();
-    const ease = t => t < .5 ? 4*t**3 : 1-(-2*t+2)**3/2;
-
-    (function step(now) {
-      const k = Math.min(1, (now - t0) / dur);
-      const e = ease(k);
-      const lerp = (a, b) => ({ x: a.x+(b.x-a.x)*e, y: a.y+(b.y-a.y)*e });
-
-      S.tip  = lerp(from.tip,  target.tip);
-      S.base = lerp(from.base, target.base);
-      S.d    = from.d.map((p, i) => lerp(p, target.d[i]));
-      S.v    = from.v.map((p, i) => lerp(p, target.v[i]));
-
+    const from=cloneS(S), t0=performance.now();
+    const ease=t=>t<.5?4*t**3:1-(-2*t+2)**3/2;
+    const lerp=(a,b,e)=>({x:a.x+(b.x-a.x)*e, y:a.y+(b.y-a.y)*e});
+    (function step(now){
+      const k=Math.min(1,(now-t0)/dur), e=ease(k);
+      S.tip =lerp(from.tip, target.tip, e);
+      S.base=lerp(from.base,target.base,e);
+      S.d=from.d.map((p,i)=>lerp(p,target.d[i],e));
+      S.v=from.v.map((p,i)=>lerp(p,target.v[i],e));
       syncHandles(S); render(S);
-      if (k < 1) tweenRAF = requestAnimationFrame(step);
+      if(k<1) tweenRAF=requestAnimationFrame(step);
       else placeSpecks();
     })(t0);
   }
 
-  /* ── 리셋 ─────────────────────────────────────────── */
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    tweenTo(makeDefault());
+  /* ── 버튼 활성화 ──────────────────────────────────── */
+  let activeKey = null;
+  function setActive(key) {
+    activeKey = key;
+    document.querySelectorAll('.cBtn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.key===key);
+    });
+  }
+
+  document.querySelectorAll('.cBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.key;
+      const presets = getPresets();
+      if (presets[key]) {
+        setActive(key);
+        tweenTo(presets[key]);
+      }
+    });
   });
 
   /* ── 리사이즈 ─────────────────────────────────────── */
-  const ro = new ResizeObserver(() => render(S));
+  const ro = new ResizeObserver(()=>render(S));
   ro.observe(wrap);
-  window.addEventListener('resize', () => render(S));
 
   /* ── 초기화 ───────────────────────────────────────── */
-  requestAnimationFrame(() => {
-    S = makeDefault();
+  requestAnimationFrame(()=>{
+    S = getPresets().neutral;
     buildHandles(S);
-    redraw();
+    render(S);
+    placeSpecks();
   });
 })();
 </script>
